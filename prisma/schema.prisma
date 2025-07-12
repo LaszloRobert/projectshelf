@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String?
+  isAdmin   Boolean  @default(true) // For Phase 1, single admin user
+  projects  Project[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(PLANNING)
+  
+  // Git & Repository Info
+  gitUrl      String?
+  gitBranch   String?
+  
+  // Domain & Hosting Info
+  liveUrl     String?
+  domain      String?
+  domainProvider String?
+  hostingProvider String?
+  
+  // Technology Stack
+  techStack   String?       // JSON string for now, can be array later
+  version     String?
+  
+  // Additional Info
+  notes       String?
+  tags        String?       // Comma-separated tags
+  
+  // Relationships
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  DEPLOYED
+  ARCHIVED
+  ON_HOLD
+}
