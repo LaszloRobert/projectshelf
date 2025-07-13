@@ -31,11 +31,9 @@ model Project {
   
   // Git & Repository Info
   gitUrl      String?
-  gitBranch   String?
   
   // Domain & Hosting Info
   liveUrl     String?
-  domain      String?
   domainProvider String?
   hostingProvider String?
   
@@ -45,6 +43,7 @@ model Project {
   
   // Additional Info
   notes       String?
+  lessonLearned String?     // Lessons learned from the project
   tags        String?       // Comma-separated tags
   
   // Relationships
