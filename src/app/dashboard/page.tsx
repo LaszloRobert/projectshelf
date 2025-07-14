@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Search, LogOut, ExternalLink, Github } from 'lucide-react'
+import { Plus, Search, LogOut, Github, Globe, Eye } from 'lucide-react'
 import CreateProjectModal from '@/components/features/CreateProjectModal'
 import { Project } from '@/types/project' 
 
@@ -148,11 +148,32 @@ export default function DashboardPage() {
               <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg truncate">{project.name}</CardTitle>
+                    </div>
                     <Badge className={statusColors[project.status as keyof typeof statusColors]}>
                       {project.status.replace('_', ' ')}
                     </Badge>
+                    <div className="flex items-center gap-2 ml-2">
+                      {project.gitUrl && (
+                        <a href={project.gitUrl} target="_blank" rel="noopener noreferrer" title="GitHub">
+                          <Github className="w-4 h-4 text-gray-500 hover:text-black" />
+                        </a>
+                      )}
+                      {project.liveUrl && (
+                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" title="Live URL">
+                          <Globe className="w-4 h-4 text-gray-500 hover:text-blue-600" />
+                        </a>
+                      )}
+                      <a
+                        href={`/dashboard/projects/view/${project.id}`}
+                        title="View Page"
+                      >
+                        <Eye className="w-4 h-4 text-gray-500 hover:text-green-600" />
+                      </a>
+                    </div>
                   </div>
+                  
                   {project.description && (
                     <CardDescription className="line-clamp-2">
                       {project.description}
@@ -172,22 +193,7 @@ export default function DashboardPage() {
                       </div>
                     )}
                     <div className="flex justify-between items-center pt-4">
-                      <div className="flex space-x-2">
-                        {project.gitUrl && (
-                          <Button size="sm" variant="outline" asChild>
-                            <a href={project.gitUrl} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        )}
-                        {project.liveUrl && (
-                          <Button size="sm" variant="outline" asChild>
-                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        )}
-                      </div>
+                      <div />
                       <Button 
                         size="sm" 
                         variant="ghost"
