@@ -18,6 +18,7 @@ export const projectSchema = z.object({
   lessonLearned: z.string().optional(),
   notes: z.string().optional(),
   tags: z.string().optional(),
+  platform: z.string().optional(),
 })
 
 export const createProjectSchema = projectSchema

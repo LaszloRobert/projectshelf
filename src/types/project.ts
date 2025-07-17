@@ -12,6 +12,7 @@ export interface Project {
     notes?: string
     lessonLearned?: string
     tags?: string
+    platform?: string
     userId: string
     createdAt: string
     updatedAt: string
@@ -32,4 +33,5 @@ export interface Project {
     notes?: string
     lessonLearned?: string
     tags?: string
+    platform?: string
   }

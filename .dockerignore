@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.test
+
+# Build output
+.next/
+out/
+
+# Runtime data
+*.log
+*.pid
+*.seed
+
+# Database
+*.db
+*.sqlite
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+INSTALL.md

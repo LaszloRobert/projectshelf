@@ -18,6 +18,8 @@ interface CreateProjectModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onProjectCreated: () => void
+  initialData?: CreateProjectData
+  projectId?: string
 }
 
 // Initial form state - single source of truth
@@ -33,23 +35,27 @@ const initialFormData: CreateProjectData = {
   version: '',
   notes: '',
   lessonLearned: '',
-  tags: ''
+  tags: '',
+  platform: ''
 }
 
 export default function CreateProjectModal({ 
   open, 
   onOpenChange, 
-  onProjectCreated 
+  onProjectCreated,
+  initialData,
+  projectId
 }: CreateProjectModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [formData, setFormData] = useState<CreateProjectData>(initialFormData)
+  const [formData, setFormData] = useState<CreateProjectData>(initialData || initialFormData)
+  const isEditMode = !!projectId
 
   // Reset function - single place to reset form
   const resetForm = useCallback(() => {
-    setFormData(initialFormData)
+    setFormData(initialData || initialFormData)
     setError('')
-  }, [])
+  }, [initialData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,8 +63,11 @@ export default function CreateProjectModal({
     setError('')
 
     try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      const url = isEditMode ? `/api/projects/${projectId}` : '/api/projects'
+      const method = isEditMode ? 'PUT' : 'POST'
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -66,7 +75,7 @@ export default function CreateProjectModal({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create project')
+        throw new Error(`Failed to ${isEditMode ? 'update' : 'create'} project`)
       }
 
       // Reset form and close modal
@@ -74,8 +83,8 @@ export default function CreateProjectModal({
       onOpenChange(false)
       onProjectCreated()
     } catch (error) {
-      console.error('Error creating project:', error)
-      setError('Failed to create project. Please try again.')
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} project:`, error)
+      setError(`Failed to ${isEditMode ? 'update' : 'create'} project. Please try again.`)
     } finally {
       setLoading(false)
     }
@@ -100,7 +109,7 @@ export default function CreateProjectModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -112,6 +121,13 @@ export default function CreateProjectModal({
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                onFocus={(e) => {
+                  // Move cursor to end instead of selecting all text
+                  const input = e.target as HTMLInputElement
+                  setTimeout(() => {
+                    input.setSelectionRange(input.value.length, input.value.length)
+                  }, 0)
+                }}
                 required
                 placeholder="Enter project name"
               />
@@ -226,7 +242,18 @@ export default function CreateProjectModal({
                 name="tags"
                 value={formData.tags}
                 onChange={handleChange}
-                placeholder="web, mobile, api"
+                placeholder="personal, important, favorite"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="platform">Platform</Label>
+              <Input
+                id="platform"
+                name="platform"
+                value={formData.platform}
+                onChange={handleChange}
+                placeholder="web, mobile, desktop, api"
               />
             </div>
           </div>
@@ -271,7 +298,7 @@ export default function CreateProjectModal({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Project'}
+              {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Project' : 'Create Project')}
             </Button>
           </DialogFooter>
         </form>

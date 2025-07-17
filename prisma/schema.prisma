@@ -44,7 +44,8 @@ model Project {
   // Additional Info
   notes       String?
   lessonLearned String?     // Lessons learned from the project
-  tags        String?       // Comma-separated tags
+  tags        String?       // Comma-separated personal tags
+  platform    String?       // Comma-separated platforms (web, mobile, desktop, etc.)
   
   // Relationships
   userId      String
@@ -58,7 +59,7 @@ model Project {
 }
 
 enum ProjectStatus {
-  PLANNING
+  PLANNINGO
   IN_PROGRESS
   COMPLETED
   DEPLOYED
