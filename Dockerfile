@@ -1,4 +1,4 @@
-wha# Use the official Node.js 22 image
+# Use the official Node.js 22 image
 FROM node:22-alpine
 
 # Set working directory
