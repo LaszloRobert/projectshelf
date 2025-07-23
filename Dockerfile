@@ -24,8 +24,5 @@ RUN npm run build
 ENV PORT=8080
 EXPOSE $PORT
 
-# Create startup script
-RUN echo '#!/bin/sh\nnpx prisma migrate deploy\nnpm start' > /start.sh && chmod +x /start.sh
-
 # Start the application
-CMD ["/start.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
