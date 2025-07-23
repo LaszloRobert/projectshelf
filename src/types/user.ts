@@ -25,3 +25,9 @@ export interface User {
     name?: string
     isAdmin: boolean
   }
+
+  export interface UpdateProfileFormData {
+    currentPassword: string
+    email?: string
+    newPassword?: string
+  }
