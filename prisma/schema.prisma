@@ -15,7 +15,7 @@ model User {
   email     String   @unique
   password  String   // Hashed password
   name      String?
-  isAdmin   Boolean  @default(true) // For Phase 1, single admin user
+  isAdmin   Boolean  @default(false) // Regular users by default, admin created separately
   projects  Project[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,7 +59,7 @@ model Project {
 }
 
 enum ProjectStatus {
-  PLANNINGO
+  PLANNING
   IN_PROGRESS
   COMPLETED
   DEPLOYED

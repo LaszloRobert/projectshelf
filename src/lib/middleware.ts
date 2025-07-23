@@ -30,4 +30,14 @@ export async function requireAuth(request?: NextRequest): Promise<AuthUser> {
   }
   
   return user
+}
+
+export async function requireAdmin(request?: NextRequest): Promise<AuthUser> {
+  const user = await requireAuth(request)
+  
+  if (!user.isAdmin) {
+    throw new Error('Admin access required')
+  }
+  
+  return user
 } 

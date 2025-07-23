@@ -26,6 +26,24 @@ export const updateProjectSchema = projectSchema.partial().extend({
   id: z.string().cuid('Invalid project ID'),
 })
 
+export const updateProfileSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  email: z.string().email('Invalid email address').optional(),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters').optional(),
+}).refine(
+  (data) => data.email || data.newPassword,
+  { message: 'Either email or new password must be provided', path: ['email'] }
+)
+
+export const createUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  name: z.string().min(1, 'Name is required').optional(),
+  isAdmin: z.boolean().default(false),
+})
+
 export type LoginFormData = z.infer<typeof loginSchema>
 export type ProjectFormData = z.infer<typeof projectSchema>
-export type UpdateProjectFormData = z.infer<typeof updateProjectSchema> 
+export type UpdateProjectFormData = z.infer<typeof updateProjectSchema>
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
+export type CreateUserFormData = z.infer<typeof createUserSchema> 

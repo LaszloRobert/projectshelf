@@ -47,7 +47,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">ProjectShelf</CardTitle>
+          <CardTitle className="text-2xl text-center">Project Shelf</CardTitle>
           <CardDescription className="text-center">
             Sign in to manage your projects
           </CardDescription>
@@ -59,7 +59,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@projectshelf.local"
+                placeholder="admin@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -87,8 +87,8 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-sm text-gray-600 text-center">
             <p>Default credentials:</p>
-            <p>Email: admin@projectshelf.local</p>
-            <p>Password: admin123</p>
+            <p>Email: admin@email.com</p>
+            <p>Password: changeme</p>
           </div>
         </CardContent>
       </Card>

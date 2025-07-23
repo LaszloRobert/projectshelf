@@ -3,7 +3,7 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plus, LogOut, FolderOpen } from 'lucide-react'
+import { Plus, LogOut, FolderOpen, Settings } from 'lucide-react'
 import CreateProjectModal from '@/components/features/CreateProjectModal'
 
 interface NavbarProps {
@@ -49,6 +49,14 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
               <Button onClick={() => setCreateModalOpen(true)} className="flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
                 <span>New Project</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/dashboard/settings')} 
+                className="flex items-center space-x-2"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
               </Button>
               <Button variant="outline" onClick={handleLogout} className="flex items-center space-x-2">
                 <LogOut className="h-4 w-4" />
