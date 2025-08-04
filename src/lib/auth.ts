@@ -10,8 +10,8 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 export async function createAdminUser() {
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@email.com'
-  const adminPassword = process.env.ADMIN_PASSWORD || 'changeme'
+  const adminEmail = 'admin@email.com'
+  const adminPassword = 'changeme'
 
   // Check if admin user already exists
   const existingAdmin = await prisma.user.findUnique({

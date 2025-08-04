@@ -12,60 +12,60 @@ export async function PUT(request: NextRequest) {
   try {
     // Require authentication
     const authUser = await requireAuth(request)
-    
+
     const body = await request.json()
-    
+
     // Validate input
     const validatedData = updateProfileSchema.parse(body)
-    
+
     // Get current user from database
     const currentUser = await prisma.user.findUnique({
       where: { id: authUser.userId }
     })
-    
+
     if (!currentUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       )
     }
-    
+
     // Verify current password
     const isCurrentPasswordValid = await verifyPassword(
       validatedData.currentPassword,
       currentUser.password
     )
-    
+
     if (!isCurrentPasswordValid) {
       return NextResponse.json(
         { error: 'Current password is incorrect' },
         { status: 401 }
       )
     }
-    
+
     // Prepare update data
     const updateData: any = {}
-    
+
     if (validatedData.email) {
       // Check if email is already taken by another user
       const existingUser = await prisma.user.findUnique({
         where: { email: validatedData.email }
       })
-      
+
       if (existingUser && existingUser.id !== authUser.userId) {
         return NextResponse.json(
           { error: 'Email is already in use' },
           { status: 400 }
         )
       }
-      
+
       updateData.email = validatedData.email
     }
-    
+
     if (validatedData.newPassword) {
       updateData.password = await hashPassword(validatedData.newPassword)
     }
-    
+
     // Update user in database
     const updatedUser = await prisma.user.update({
       where: { id: authUser.userId },
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
         isAdmin: true
       }
     })
-    
+
     // If email changed, update JWT token
     if (validatedData.email) {
       const newToken = jwt.sign(
@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest) {
         JWT_SECRET,
         { expiresIn: '7d' }
       )
-      
+
       const cookieStore = await cookies()
       cookieStore.set('auth-token', newToken, {
         httpOnly: true,
@@ -94,15 +94,15 @@ export async function PUT(request: NextRequest) {
         maxAge: 60 * 60 * 24 * 7, // 7 days
       })
     }
-    
+
     return NextResponse.json({
       message: 'Profile updated successfully',
       user: updatedUser
     })
-    
+
   } catch (error) {
     console.error('Update profile error:', error)
-    
+
     if (error instanceof Error) {
       if (error.name === 'ZodError') {
         return NextResponse.json(
@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         )
       }
-      
+
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           { error: 'Authentication required' },
@@ -118,7 +118,7 @@ export async function PUT(request: NextRequest) {
         )
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

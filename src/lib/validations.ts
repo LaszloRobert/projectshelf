@@ -8,7 +8,7 @@ export const loginSchema = z.object({
 export const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(100, 'Project name too long'),
   description: z.string().optional(),
-  status: z.enum(['PLANNING', 'IN_PROGRESS', 'COMPLETED', 'DEPLOYED', 'ARCHIVED', 'ON_HOLD']).default('PLANNING'),
+  status: z.enum(['PLANNING', 'IN_PROGRESS', 'COMPLETED']).default('PLANNING'),
   gitUrl: z.string().url('Invalid Git URL').optional().or(z.literal('')),
   liveUrl: z.string().url('Invalid live URL').optional().or(z.literal('')),
   domainProvider: z.string().optional(),

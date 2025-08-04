@@ -62,7 +62,4 @@ enum ProjectStatus {
   PLANNING
   IN_PROGRESS
   COMPLETED
-  DEPLOYED
-  ARCHIVED
-  ON_HOLD
 }
