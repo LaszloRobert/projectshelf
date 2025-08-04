@@ -1,6 +1,6 @@
-let# 📚 Project Shelf
+📚 Project Shelf
 
-A clean, modern personal project management application to organize and track all your development projects in one place.
+A way to keep your project info in one place.
 
 ![Project Shelf Screenshot](https://via.placeholder.com/800x400?text=Project+Shelf+Screenshot)
 
@@ -17,12 +17,12 @@ A clean, modern personal project management application to organize and track al
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/LaszloRobert/projectshelf.git
    cd projectshelf
    ```
 
 2. **Set up environment**
-   ```bash
+   ```bashSh
    cp .env.example .env
    ```
 
