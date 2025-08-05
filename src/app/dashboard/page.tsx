@@ -113,7 +113,7 @@ export default function DashboardPage() {
                       <CardTitle className="text-lg truncate">{project.name}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                      <Badge className={`${statusColors[project.status as keyof typeof statusColors]}`}>
                         {formatStatus(project.status)}
                       </Badge>
                       <div className="flex items-center gap-2">
@@ -153,22 +153,22 @@ export default function DashboardPage() {
                           const tags = project.tags.split(',').map(tag => tag.trim()).filter(Boolean)
                           const displayTags = tags.slice(0, 3)
                           const remainingCount = tags.length - 3
-                          
+
                           return (
                             <>
                               {displayTags.map((tag, index) => (
-                                <Badge 
-                                  key={index} 
-                                  variant="secondary" 
-                                  className="text-xs bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs px-1 py-0 bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 >
                                   {tag}
                                 </Badge>
                               ))}
                               {remainingCount > 0 && (
-                                <Badge 
-                                  variant="secondary" 
-                                  className="text-xs bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs px-1 py-0 bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 >
                                   +{remainingCount} more
                                 </Badge>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                         })()}
                       </div>
                     )}
-                    
+
                     {/* Tech Stack */}
                     {project.techStack && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -186,7 +186,7 @@ export default function DashboardPage() {
                         <span>{project.techStack}</span>
                       </div>
                     )}
-                    
+
                     {/* Version, Update Date, and Platform */}
                     <div className="flex items-center justify-between pt-2">
                       <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                           Updated {formatDate(project.updatedAt)}
                         </div>
                       </div>
-                      
+
                       {/* Platform badges */}
                       {project.platform && (
                         <div className="flex flex-wrap gap-1">
@@ -207,22 +207,22 @@ export default function DashboardPage() {
                             const platforms = project.platform.split(',').map(p => p.trim()).filter(Boolean)
                             const displayPlatforms = platforms.slice(0, 2)
                             const remainingCount = platforms.length - 2
-                            
+
                             return (
                               <>
                                 {displayPlatforms.map((platform, index) => (
-                                  <Badge 
-                                    key={index} 
-                                    variant="outline" 
-                                    className="text-xs bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs px-1 py-0 bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                   >
                                     {platform}
                                   </Badge>
                                 ))}
                                 {remainingCount > 0 && (
-                                  <Badge 
-                                    variant="outline" 
-                                    className="text-xs bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs px-1 py-0 bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                   >
                                     +{remainingCount}
                                   </Badge>

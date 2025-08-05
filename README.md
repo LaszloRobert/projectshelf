@@ -2,7 +2,8 @@
 
 A way to keep your project info in one place.
 
-![Project Shelf Screenshot](https://via.placeholder.com/800x400?text=Project+Shelf+Screenshot)
+![Project Shelf Screenshot](https://ibb.co/LXqY0qGg)
+<a href="https://ibb.co/LXqY0qGg"><img src="https://i.ibb.co/Jwbmcbhp/projectshelf.png" alt="projectshelf"></a>
 
 ## ✨ Features
 

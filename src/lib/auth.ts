@@ -24,7 +24,7 @@ export async function createAdminUser() {
 
   // Create admin user
   const hashedPassword = await hashPassword(adminPassword)
-  
+
   const adminUser = await prisma.user.create({
     data: {
       email: adminEmail,
@@ -47,7 +47,7 @@ export async function authenticateUser(email: string, password: string) {
   }
 
   const isValid = await verifyPassword(password, user.password)
-  
+  console.log('Is valid password:', isValid)
   if (!isValid) {
     return null
   }
