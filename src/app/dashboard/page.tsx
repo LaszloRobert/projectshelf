@@ -106,7 +106,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card key={project.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -130,6 +130,7 @@ export default function DashboardPage() {
                         <button
                           onClick={() => router.push(`/dashboard/projects/view/${project.id}`)}
                           title="View Page"
+                          className="cursor-pointer"
                         >
                           <Eye className="w-4 h-4 text-gray-500 hover:text-green-600" />
                         </button>

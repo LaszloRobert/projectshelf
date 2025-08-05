@@ -145,9 +145,6 @@ export default function CreateProjectModal({
                 <option value="PLANNING">Planning</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
-                <option value="DEPLOYED">Deployed</option>
-                <option value="ARCHIVED">Archived</option>
-                <option value="ON_HOLD">On Hold</option>
               </select>
             </div>
           </div>

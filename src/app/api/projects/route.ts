@@ -5,13 +5,24 @@ import { createProjectSchema } from '@/lib/validations'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuth()
     
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
     const status = searchParams.get('status')
     
-    const where: any = {
+    type WhereClause = {
+      userId: string
+      status?: 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'
+      OR?: Array<
+        | { name: { contains: string; mode?: string } }
+        | { description: { contains: string; mode?: string } }
+        | { techStack: { contains: string; mode?: string } }
+        | { tags: { contains: string; mode?: string } }
+      >
+    }
+    
+    const where: WhereClause = {
       userId: user.userId,
     }
     
@@ -25,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
     
     if (status && status !== 'all') {
-      where.status = status
+      where.status = status as 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'
     }
     
     const projects = await prisma.project.findMany({
@@ -53,7 +64,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuth()
     const body = await request.json()
     
     // Validate input

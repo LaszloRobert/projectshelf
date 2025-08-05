@@ -18,7 +18,7 @@ export interface Project {
     updatedAt: string
   }
   
-  export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED' | 'DEPLOYED' | 'ARCHIVED' | 'ON_HOLD'
+  export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'
   
   export interface CreateProjectData {
     name: string

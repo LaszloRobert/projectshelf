@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db'
 export async function POST(request: NextRequest) {
   try {
     // Require admin authentication
-    await requireAdmin(request)
+    await requireAdmin()
     
     const body = await request.json()
     
@@ -84,10 +84,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Require admin authentication
-    await requireAdmin(request)
+    await requireAdmin()
     
     // Get all users
     const users = await prisma.user.findMany({

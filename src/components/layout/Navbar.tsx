@@ -41,7 +41,7 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/dashboard')}>
               <FolderOpen className="h-8 w-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">Project Shelf</h1>
             </div>
@@ -50,9 +50,9 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
                 <Plus className="h-4 w-4" />
                 <span>New Project</span>
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => router.push('/dashboard/settings')} 
+              <Button
+                variant="outline"
+                onClick={() => router.push('/dashboard/settings')}
                 className="flex items-center space-x-2"
               >
                 <Settings className="h-4 w-4" />

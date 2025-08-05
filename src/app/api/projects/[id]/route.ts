@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { id } = await params
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuth()
     
     const project = await prisma.project.findFirst({
       where: {
@@ -49,7 +49,7 @@ export async function PUT(
 ) {
   const { id } = await params
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuth()
     const body = await request.json()
     
     // Validate input
@@ -70,8 +70,9 @@ export async function PUT(
       )
     }
     
-    // Remove id from update data
-    const { id: _, ...updateData } = validatedData
+    // Update project (excluding id from update data)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: validatedId, ...updateData } = validatedData
     
     const project = await prisma.project.update({
       where: { id },
@@ -109,7 +110,7 @@ export async function DELETE(
 ) {
   const { id } = await params
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuth()
     
     // Check if project exists and belongs to user
     const existingProject = await prisma.project.findFirst({

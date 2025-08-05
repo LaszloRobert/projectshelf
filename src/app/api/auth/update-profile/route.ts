@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this'
 export async function PUT(request: NextRequest) {
   try {
     // Require authentication
-    const authUser = await requireAuth(request)
+    const authUser = await requireAuth()
 
     const body = await request.json()
 
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: { email?: string; password?: string } = {}
 
     if (validatedData.email) {
       // Check if email is already taken by another user

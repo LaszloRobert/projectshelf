@@ -22,8 +22,12 @@ A way to keep your project info in one place.
    ```
 
 2. **Set up environment**
-   ```bashSh
+   ```bash
+   # Linux/Mac
    cp .env.example .env
+   
+   # Windows
+   copy .env.example .env
    ```
 
 3. **Edit the `.env` file** and change the JWT_SECRET:

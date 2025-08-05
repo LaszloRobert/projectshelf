@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/middleware'
 import { prisma } from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Require authentication
-    const authUser = await requireAuth(request)
+    const authUser = await requireAuth()
     
     // Get current user from database
     const user = await prisma.user.findUnique({
