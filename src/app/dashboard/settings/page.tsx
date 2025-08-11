@@ -203,24 +203,24 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-2">Manage your profile and system settings</p>
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground mt-2">Manage your profile and system settings</p>
         </div>
 
         <div className="space-y-6">
           {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg max-w-md">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-md">
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
                 activeTab === 'profile'
-                  ? 'bg-white shadow-sm text-gray-900'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-card shadow-sm text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <UserIcon className="h-4 w-4" />
@@ -231,8 +231,8 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab('users')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
                   activeTab === 'users'
-                    ? 'bg-white shadow-sm text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-card shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Users className="h-4 w-4" />
@@ -309,8 +309,8 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
-                    <p className="text-gray-600">Manage users and their permissions</p>
+                    <h2 className="text-xl font-semibold text-foreground">User Management</h2>
+                    <p className="text-muted-foreground">Manage users and their permissions</p>
                   </div>
                   
                   <Dialog open={createUserModalOpen} onOpenChange={setCreateUserModalOpen}>
@@ -422,11 +422,11 @@ export default function SettingsPage() {
                       <CardContent>
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Projects:</span>
+                            <span className="text-muted-foreground">Projects:</span>
                             <span className="font-medium">{user._count.projects}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Joined:</span>
+                            <span className="text-muted-foreground">Joined:</span>
                             <span className="font-medium">{formatDate(user.createdAt)}</span>
                           </div>
                           <div className="pt-3 border-t">

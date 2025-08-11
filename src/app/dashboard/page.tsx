@@ -65,7 +65,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar ref={navbarRef} onProjectCreated={handleProjectCreated} />
 
       {/* Main Content */}
@@ -84,7 +84,7 @@ export default function DashboardPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+            className="px-3 py-2 rounded-md border border-input bg-card text-foreground dark:bg-card dark:[color-scheme:dark]"
           >
             <option value="all">All Status</option>
             <option value="PLANNING">Planning</option>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                                   <Badge
                                     key={index}
                                     variant="outline"
-                                    className="text-xs px-1 py-0 bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                    className="text-xs px-1 py-0 bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                                   >
                                     {platform}
                                   </Badge>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                                 {remainingCount > 0 && (
                                   <Badge
                                     variant="outline"
-                                    className="text-xs px-1 py-0 bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                    className="text-xs px-1 py-0 bg-background text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                                   >
                                     +{remainingCount}
                                   </Badge>

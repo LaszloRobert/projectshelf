@@ -140,7 +140,7 @@ export default function CreateProjectModal({
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 rounded-md border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-card dark:[color-scheme:dark]"
               >
                 <option value="PLANNING">Planning</option>
                 <option value="IN_PROGRESS">In Progress</option>

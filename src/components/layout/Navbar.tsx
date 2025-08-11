@@ -3,8 +3,9 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plus, LogOut, FolderOpen, Settings } from 'lucide-react'
+import { Plus, LogOut, FolderOpen, Settings, Moon, Sun } from 'lucide-react'
 import CreateProjectModal from '@/components/features/CreateProjectModal'
+import { useTheme } from 'next-themes'
 
 interface NavbarProps {
   onProjectCreated?: () => void
@@ -17,6 +18,7 @@ export interface NavbarRef {
 const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const router = useRouter()
+  const { theme, setTheme, resolvedTheme } = useTheme()
 
   useImperativeHandle(ref, () => ({
     openCreateModal: () => setCreateModalOpen(true)
@@ -36,20 +38,34 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
     onProjectCreated?.()
   }
 
+  const isDark = (resolvedTheme ?? theme) === 'dark'
+
   return (
     <>
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b dark:bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/dashboard')}>
               <FolderOpen className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Project Shelf</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground">Project Shelf</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button onClick={() => setCreateModalOpen(true)} className="flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
                 <span>New Project</span>
               </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                aria-label="Toggle theme"
+                className="flex items-center space-x-2"
+                title={isDark ? 'Switch to Light' : 'Switch to Dark'}
+              >
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+              </Button>
+
               <Button
                 variant="outline"
                 onClick={() => router.push('/dashboard/settings')}
