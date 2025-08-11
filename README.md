@@ -4,6 +4,11 @@ A way to keep your project info in one place.
 
 <a href="https://ibb.co/LXqY0qGg"><img src="https://i.ibb.co/Jwbmcbhp/projectshelf.png" alt="projectshelf"></a>
 
+[![Image: GHCR](https://img.shields.io/badge/image-ghcr.io%2FLaszloRobert%2Fprojectshelf-000?logo=docker)](https://github.com/users/LaszloRobert/packages/container/package/projectshelf)
+[![Docker Hub](https://img.shields.io/badge/dockerhub-robertls%2Fprojectshelf-0db7ed?logo=docker)](https://hub.docker.com/r/robertls/projectshelf)
+[![Release](https://img.shields.io/github/v/tag/LaszloRobert/projectshelf?label=release&sort=semver)](https://github.com/LaszloRobert/projectshelf/releases)
+
+
 ## ✨ Features
 
 - **Project Management**: Track projects with statuses (Planning, In Progress, Completed)
@@ -13,124 +18,60 @@ A way to keep your project info in one place.
 - **Secure**: JWT-based authentication with password hashing
 - **Lightweight**: SQLite database, no external dependencies
 
-## 🚀 Quick Start (Docker)
+## 🚀 Quick Start: Self-host
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/LaszloRobert/projectshelf.git
-   cd projectshelf
-   ```
-
-2. **Set up environment**
-   ```bash
-   # Linux/Mac
-   cp .env.example .env
-   
-   # Windows
-   copy .env.example .env
-   ```
-
-3. **Edit the `.env` file** and change the JWT_SECRET:
-   ```env
-   JWT_SECRET="your-super-secret-key-at-least-32-characters-long"
-   ```
-
-4. **Start the application**
-   ```bash
-   docker compose up -d
-   ```
-
-5. **Access the app**
-   - Open http://localhost:8081
-   - Login with: `admin@email.com` / `changeme`
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | Database file path | `file:./data/projectshelf.db` |
-| `JWT_SECRET` | Secret key for JWT tokens | **Must be changed!** |
-| `NODE_ENV` | Environment mode | `production` |
-| `PORT` | Internal container port | `8080` |
-
-### Port Configuration
-
-To change the external port, edit `docker-compose.yml`:
-```yaml
-ports:
-  - "9000:8080"  # App will be available on port 9000
-```
-
-### Database Options
-
-**SQLite (Default - Recommended)**
-```env
-DATABASE_URL="file:./data/projectshelf.db"
-```
-
-**PostgreSQL (Advanced)**
-1. Add PostgreSQL service to `docker-compose.yml`
-2. Update DATABASE_URL:
-```env
-DATABASE_URL="postgresql://user:password@db:5432/projectshelf"
-```
-
-## 🛠️ Development
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Local Development
+Run with Docker Hub (recommended):
 ```bash
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Edit .env with development settings
-# DATABASE_URL="file:./dev.db"
-# NODE_ENV=development
-# PORT=3000
-
-# Run database migrations
-npx prisma migrate dev
-
-# Start development server
-npm run dev
+docker pull robertls/projectshelf:latest
+docker run -d --name projectshelf \
+  --restart unless-stopped \
+  -p 8081:8080 \
+  -v ./data:/app/data \
+  robertls/projectshelf:latest
+```
+Alternative (GHCR):
+```bash
+docker pull ghcr.io/LaszloRobert/projectshelf:latest
+docker run -d --name projectshelf \
+  --restart unless-stopped \
+  -p 8081:8080 \
+  -v ./data:/app/data \
+  ghcr.io/LaszloRobert/projectshelf:latest
 ```
 
-## 📋 Default Admin Account
+After running
+- Open `http://YOUR_SERVER_IP:8081`
+- Login with `admin@email.com` / `changeme`
 
-On first startup, an admin account is automatically created:
-- **Email**: `admin@email.com`
-- **Password**: `changeme`
-
-⚠️ **Important**: Change the admin password after first login!
-
-## 🔒 Security Notes
-
-- Always change the `JWT_SECRET` in production
-- Change the default admin password
-- Use HTTPS in production with a reverse proxy
-- Regular database backups recommended
-
-## 📁 File Structure
-
+Port busy?
+- If 8081 is in use on your host, change only the left side of the mapping (keep container port 8080):
+```bash
+docker run -d --name projectshelf \
+  --restart unless-stopped \
+  -p 9000:8080 \
+  -v ./data:/app/data \
+  robertls/projectshelf:latest
 ```
-projectshelf/
-├── data/                 # Database and persistent data (created on first run)
-├── src/                  # Application source code
-├── prisma/              # Database schema and migrations
-├── .env                 # Your configuration (create from .env.example)
-├── .env.example         # Environment template
-├── docker-compose.yml   # Docker configuration
-├── Dockerfile          # Container definition
-└── README.md           # This file
+
+## Alternative Quick Start: Docker Compose (build locally)
+
+1. Clone the repository
+```bash
+git clone https://github.com/LaszloRobert/projectshelf.git
+cd projectshelf
 ```
+
+2. Start the app
+```bash
+docker compose up -d
+```
+
+3. Access the app
+- http://localhost:8081
+- Login: admin@email.com / changeme
+
+Advanced (Compose only)
+- Change port: edit `docker-compose.yml` ports to `"9000:8080"` to serve on 9000
 
 ## 🔄 Useful Commands
 
@@ -153,6 +94,7 @@ docker compose up -d
 cp data/projectshelf.db backup-$(date +%Y%m%d).db
 ```
 
+
 ## 🐛 Troubleshooting
 
 ### Port Already in Use
@@ -162,24 +104,76 @@ ports:
   - "8082:8080"  # Use port 8082 instead
 ```
 
-### Database Issues
-Reset the database:
+
+## 🧑‍💻 Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+If you want to run from source code:
+
 ```bash
-docker compose down
-rm -rf data/
-docker compose up -d
+# Install dependencies
+npm install
+
+# Run database migrations
+npx prisma migrate dev
+
+# Start development server
+npm run dev
+```
+
+The app will auto-generate a `.env` file with all necessary settings on first startup.
+
+**Access the app**
+- Open http://localhost:3000
+- Login with admin@email.com / changeme
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `JWT_SECRET` | Secret key for JWT tokens | Auto-generated on startup |
+| `DATABASE_URL` | Database file path | `file:./data/projectshelf.db` |
+
+**Note**: JWT_SECRET and DATABASE_URL variables are auto-configured on first startup. You can customize them by editing the generated `.env` file.
+
+
+## 📋 Default Admin Account
+
+On first startup, an admin account is automatically created:
+- **Email**: `admin@email.com`
+- **Password**: `changeme`
+
+⚠️ **Important**: Change the admin password after first login!
+
+## 🔒 Security Notes
+
+- JWT secrets are auto-generated securely on startup
+- Change the default admin password after first login
+- Use HTTPS in production with a reverse proxy
+- Regular database backups recommended
+
+## 📁 File Structure
+
+```
+projectshelf/
+├── data/                 # Database and persistent data (created on first run)
+├── src/                  # Application source code
+├── prisma/              # Database schema and migrations
+├── .env                 # Auto-generated configuration (created on first run)
+├── docker-compose.yml   # Docker configuration
+├── Dockerfile          # Container definition
+└── README.md           # This file
 ```
 
 ### Can't Access from Other Devices
 - Use your server's IP address instead of localhost
 - Ensure port 8081 is open in your firewall
 - Check Docker port binding: `docker compose ps`
-
-### Application Won't Start
-1. Check logs: `docker compose logs -f`
-2. Verify `.env` file exists and has `JWT_SECRET`
-3. Ensure Docker and Docker Compose are installed
-4. Check available disk space and ports
 
 ## 🤝 Contributing
 

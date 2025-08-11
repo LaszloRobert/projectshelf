@@ -20,6 +20,9 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
+# Create data directory
+RUN mkdir -p /app/data
+
 # Make port configurable via environment variable
 ENV PORT=8080
 EXPOSE $PORT

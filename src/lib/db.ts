@@ -1,4 +1,8 @@
 import { PrismaClient } from '@prisma/client'
+import { ensureEnvFile } from './env-setup'
+
+// Ensure .env file exists before initializing database
+ensureEnvFile()
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
