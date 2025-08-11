@@ -10,19 +10,18 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 export async function createAdminUser() {
-  const adminEmail = 'admin@email.com'
-  const adminPassword = 'changeme'
-
-  // Check if admin user already exists
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail }
+  // Check if any admin user already exists
+  const existingAdmin = await prisma.user.findFirst({
+    where: { isAdmin: true }
   })
 
   if (existingAdmin) {
     return existingAdmin
   }
 
-  // Create admin user
+  // Create initial admin user only if no admin exists
+  const adminEmail = 'admin@email.com'
+  const adminPassword = 'changeme'
   const hashedPassword = await hashPassword(adminPassword)
 
   const adminUser = await prisma.user.create({

@@ -29,7 +29,10 @@ export const updateProjectSchema = projectSchema.partial().extend({
 export const updateProfileSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
   email: z.string().email('Invalid email address').optional(),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters').optional(),
+  newPassword: z.preprocess(
+    (val) => val === '' ? undefined : val,
+    z.string().min(6, 'Password must be at least 6 characters').optional()
+  ),
 }).refine(
   (data) => data.email || data.newPassword,
   { message: 'Either email or new password must be provided', path: ['email'] }
@@ -38,7 +41,7 @@ export const updateProfileSchema = z.object({
 export const createUserSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  name: z.string().min(1, 'Name is required').optional(),
+  name: z.string().min(1, 'Name is required'),
   isAdmin: z.boolean().default(false),
 })
 

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { User as UserIcon, Users, Shield, Plus, UserPlus } from 'lucide-react'
+import { User as UserIcon, Users, Shield, Plus, UserPlus, Trash2 } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
 import { User, UserWithProjectCount, CreateUserData, UpdateProfileFormData } from '@/types/user'
 
@@ -39,6 +39,11 @@ export default function SettingsPage() {
   })
   const [createUserLoading, setCreateUserLoading] = useState(false)
   const [createUserError, setCreateUserError] = useState('')
+
+  // Delete user state
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
+  const [deleteUserLoading, setDeleteUserLoading] = useState(false)
+  const [deleteUserError, setDeleteUserError] = useState('')
 
   useEffect(() => {
     fetchCurrentUser()
@@ -149,6 +154,44 @@ export default function SettingsPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
+  }
+
+  const canDeleteUser = (user: UserWithProjectCount) => {
+    // Can't delete yourself
+    if (user.id === currentUser?.id) return false
+    
+    // Can't delete last admin
+    if (user.isAdmin) {
+      const adminCount = users.filter(u => u.isAdmin).length
+      if (adminCount <= 1) return false
+    }
+    
+    return true
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeleteUserLoading(true)
+    setDeleteUserError('')
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE'
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete user')
+      }
+
+      // Close modal and refresh users list
+      setDeleteUserId(null)
+      fetchUsers()
+    } catch (err) {
+      setDeleteUserError(err instanceof Error ? err.message : 'Failed to delete user')
+    } finally {
+      setDeleteUserLoading(false)
+    }
   }
 
   if (loading) {
@@ -310,12 +353,13 @@ export default function SettingsPage() {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="user-name">Name (optional)</Label>
+                          <Label htmlFor="user-name">Name</Label>
                           <Input
                             id="user-name"
                             type="text"
                             value={createUserData.name}
                             onChange={(e) => setCreateUserData(prev => ({ ...prev, name: e.target.value }))}
+                            required
                           />
                         </div>
                         
@@ -385,6 +429,19 @@ export default function SettingsPage() {
                             <span className="text-gray-600">Joined:</span>
                             <span className="font-medium">{formatDate(user.createdAt)}</span>
                           </div>
+                          <div className="pt-3 border-t">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setDeleteUserId(user.id)}
+                              disabled={!canDeleteUser(user)}
+                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              {user.id === currentUser?.id ? 'Cannot delete yourself' : 
+                               user.isAdmin && users.filter(u => u.isAdmin).length <= 1 ? 'Last admin' : 'Delete'}
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -401,6 +458,43 @@ export default function SettingsPage() {
               </div>
           )}
         </div>
+
+        {/* Delete User Confirmation Modal */}
+        <Dialog open={!!deleteUserId} onOpenChange={() => setDeleteUserId(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete User</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this user? This action cannot be undone and will also delete all their projects.
+              </DialogDescription>
+            </DialogHeader>
+            
+            {deleteUserError && (
+              <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                {deleteUserError}
+              </div>
+            )}
+            
+            <div className="flex justify-end space-x-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setDeleteUserId(null)}
+                disabled={deleteUserLoading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="button" 
+                variant="destructive"
+                onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
+                disabled={deleteUserLoading}
+              >
+                {deleteUserLoading ? 'Deleting...' : 'Delete User'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   )
