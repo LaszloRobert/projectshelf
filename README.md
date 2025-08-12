@@ -1,10 +1,10 @@
-📚 Project Shelf
+<h1 align="center">📚 Project Shelf</h1>
 
 A way to keep your project info in one place.
 
-<a href="https://ibb.co/LXqY0qGg"><img src="https://i.ibb.co/Jwbmcbhp/projectshelf.png" alt="projectshelf"></a>
+<a href="https://ibb.co/1tC6nTP5"><img src="https://i.ibb.co/TxQLTt7S/demo.png" alt="demo" border="0"></a>
 
-[![Image: GHCR](https://img.shields.io/badge/image-ghcr.io%2FLaszloRobert%2Fprojectshelf-000?logo=docker)](https://github.com/users/LaszloRobert/packages/container/package/projectshelf)
+[![GHCR](https://img.shields.io/badge/ghcr-laszlorobert%2Fprojectshelf-0db7ed?logo=docker)](https://github.com/users/LaszloRobert/packages/container/package/projectshelf)
 [![Docker Hub](https://img.shields.io/badge/dockerhub-robertls%2Fprojectshelf-0db7ed?logo=docker)](https://hub.docker.com/r/robertls/projectshelf)
 [![Release](https://img.shields.io/github/v/tag/LaszloRobert/projectshelf?label=release&sort=semver)](https://github.com/LaszloRobert/projectshelf/releases)
 
@@ -14,6 +14,7 @@ A way to keep your project info in one place.
 - **Project Management**: Track projects with statuses (Planning, In Progress, Completed)
 - **Multi-user Support**: Admin can create and manage multiple users
 - **Clean Interface**: Modern, responsive design built with Next.js and Tailwind CSS
+- **Theme Toggle**: Light and dark mode with a persistent user preference
 - **Easy Self-hosting**: Docker-ready with SQLite database
 - **Secure**: JWT-based authentication with password hashing
 - **Lightweight**: SQLite database, no external dependencies
@@ -23,20 +24,12 @@ A way to keep your project info in one place.
 Run with Docker Hub (recommended):
 ```bash
 docker pull robertls/projectshelf:latest
-docker run -d --name projectshelf \
-  --restart unless-stopped \
-  -p 8081:8080 \
-  -v ./data:/app/data \
-  robertls/projectshelf:latest
+docker run -d --name projectshelf --restart unless-stopped -p 8081:8080 -v data:/app/data robertls/projectshelf:latest
 ```
 Alternative (GHCR):
 ```bash
-docker pull ghcr.io/LaszloRobert/projectshelf:latest
-docker run -d --name projectshelf \
-  --restart unless-stopped \
-  -p 8081:8080 \
-  -v ./data:/app/data \
-  ghcr.io/LaszloRobert/projectshelf:latest
+docker pull ghcr.io/laszlorobert/projectshelf:latest
+docker run -d --name projectshelf --restart unless-stopped -p 8081:8080 -v data:/app/data ghcr.io/laszlorobert/projectshelf:latest
 ```
 
 After running
@@ -46,11 +39,7 @@ After running
 Port busy?
 - If 8081 is in use on your host, change only the left side of the mapping (keep container port 8080):
 ```bash
-docker run -d --name projectshelf \
-  --restart unless-stopped \
-  -p 9000:8080 \
-  -v ./data:/app/data \
-  robertls/projectshelf:latest
+docker run -d --name projectshelf --restart unless-stopped -p 9000:8080 -v data:/app/data robertls/projectshelf:latest
 ```
 
 ## Alternative Quick Start: Docker Compose (build locally)
