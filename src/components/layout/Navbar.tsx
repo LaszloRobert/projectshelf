@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, LogOut, FolderOpen, Settings, Moon, Sun } from 'lucide-react'
 import CreateProjectModal from '@/components/features/CreateProjectModal'
 import { useTheme } from 'next-themes'
+import { useUpdate } from '@/contexts/UpdateContext'
 
 interface NavbarProps {
   onProjectCreated?: () => void
@@ -19,6 +20,7 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const router = useRouter()
   const { theme, setTheme, resolvedTheme } = useTheme()
+  const { showNavbarDot, dismissNavbarDot } = useUpdate()
 
   useImperativeHandle(ref, () => ({
     openCreateModal: () => setCreateModalOpen(true)
@@ -36,6 +38,13 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
   const handleProjectCreated = () => {
     setCreateModalOpen(false)
     onProjectCreated?.()
+  }
+
+  const handleSettingsClick = () => {
+    if (showNavbarDot) {
+      dismissNavbarDot()
+    }
+    router.push('/dashboard/settings')
   }
 
   const isDark = (resolvedTheme ?? theme) === 'dark'
@@ -68,11 +77,14 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
 
               <Button
                 variant="outline"
-                onClick={() => router.push('/dashboard/settings')}
-                className="flex items-center space-x-2"
+                onClick={handleSettingsClick}
+                className="flex items-center space-x-2 relative"
               >
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
+                {showNavbarDot && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+                )}
               </Button>
               <Button variant="outline" onClick={handleLogout} className="flex items-center space-x-2">
                 <LogOut className="h-4 w-4" />

@@ -10,7 +10,9 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { User as UserIcon, Users, Shield, Plus, UserPlus, Trash2 } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
+import UpdateNotification from '@/components/features/UpdateNotification'
 import { User, UserWithProjectCount, CreateUserData, UpdateProfileFormData } from '@/types/user'
+import { useUpdate } from '@/contexts/UpdateContext'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
@@ -19,6 +21,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false)
   const router = useRouter()
+  const { showVersionTabDot, dismissVersionTabDot } = useUpdate()
 
   // Profile form state
   const [profileData, setProfileData] = useState<UpdateProfileFormData>({
@@ -214,7 +217,7 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-md">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-fit">
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
@@ -227,17 +230,38 @@ export default function SettingsPage() {
               <span>Profile</span>
             </button>
             {currentUser?.isAdmin && (
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-                  activeTab === 'users'
-                    ? 'bg-card shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Users className="h-4 w-4" />
-                <span>Users</span>
-              </button>
+              <>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                    activeTab === 'users'
+                      ? 'bg-card shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Users</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (showVersionTabDot) {
+                      dismissVersionTabDot()
+                    }
+                    setActiveTab('version')
+                  }}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors relative ${
+                    activeTab === 'version'
+                      ? 'bg-card shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>Version</span>
+                  {showVersionTabDot && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+                  )}
+                </button>
+              </>
             )}
           </div>
 
@@ -456,6 +480,18 @@ export default function SettingsPage() {
                   </div>
                 )}
               </div>
+          )}
+
+          {/* Version Tab (Admin Only) */}
+          {currentUser?.isAdmin && activeTab === 'version' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Version Information</h2>
+                <p className="text-muted-foreground">Check for updates and manage system version</p>
+              </div>
+              
+              <UpdateNotification />
+            </div>
           )}
         </div>
 
