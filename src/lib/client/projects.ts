@@ -42,6 +42,9 @@ export async function getProjects(search?: string, status?: string) {
   const response = await fetch(`/api/projects?${params}`)
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Authentication required - 401')
+    }
     throw new Error('Failed to fetch projects')
   }
 

@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Read(//d/Personal Projects/projectshelf-saas/src/hooks/**)"
     ],
     "deny": []
   }
