@@ -39,4 +39,4 @@ export async function requireAdmin(): Promise<AuthUser> {
   }
   
   return user
-} 
+}

@@ -7,6 +7,7 @@ import { Plus, LogOut, FolderOpen, Settings, Moon, Sun } from 'lucide-react'
 import CreateProjectModal from '@/components/features/CreateProjectModal'
 import { useTheme } from 'next-themes'
 import { useUpdate } from '@/contexts/UpdateContext'
+import { logoutUser } from '@/lib/auth/client'
 
 interface NavbarProps {
   onProjectCreated?: () => void
@@ -28,7 +29,7 @@ const Navbar = forwardRef<NavbarRef, NavbarProps>(({ onProjectCreated }, ref) =>
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await logoutUser()
       router.push('/login')
     } catch (error) {
       console.error('Logout error:', error)
