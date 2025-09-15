@@ -3,15 +3,13 @@
  * Used by admin API routes for update checking and management
  */
 
-interface GitHubRelease {
-  tag_name: string
-  name: string
-  published_at: string
-  html_url: string
-  body: string
-  draft: boolean
-  prerelease: boolean
-}
+import type {
+  GitHubRelease,
+  VersionCheckResult,
+  ContainerConfig,
+  DeploymentInfo,
+  UpdateResult
+} from '@/types/version'
 
 export class VersionService {
   /**
@@ -56,9 +54,9 @@ export class VersionService {
   /**
    * Check for updates from GitHub releases
    */
-  static async checkForUpdates() {
+  static async checkForUpdates(): Promise<VersionCheckResult> {
     const currentVersion = this.getCurrentVersion()
-    
+
     try {
       // Fetch latest release from GitHub
       const response = await fetch(
@@ -122,44 +120,132 @@ export class VersionService {
   }
 
   /**
-   * Execute Docker update
+   * Get current Docker container configuration
    */
-  static async executeDockerUpdate(): Promise<{
-    success: boolean
-    message: string
-    output?: string
-    error?: string
-  }> {
+  static async getCurrentContainerConfig(): Promise<ContainerConfig> {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { spawn } = require('child_process')
-    
+
+    return new Promise((resolve) => {
+      const inspectScript = 'docker inspect projectshelf --format "{{json .}}"'
+
+      const childProcess = spawn('sh', ['-c', inspectScript], {
+        stdio: 'pipe'
+      })
+
+      let output = ''
+      let error = ''
+
+      childProcess.stdout.on('data', (data: Buffer) => {
+        output += data.toString()
+      })
+
+      childProcess.stderr.on('data', (data: Buffer) => {
+        error += data.toString()
+      })
+
+      childProcess.on('close', (code: number) => {
+        if (code === 0 && output.trim()) {
+          try {
+            const config = JSON.parse(output)
+            const hostConfig = config.HostConfig
+            const networkSettings = config.NetworkSettings
+
+            // Extract port mapping
+            let port = '8081'
+            if (networkSettings?.Ports?.['8080/tcp']?.[0]) {
+              port = networkSettings.Ports['8080/tcp'][0].HostPort
+            }
+
+            // Extract volumes
+            const volumes = []
+            if (hostConfig?.Binds) {
+              volumes.push(...hostConfig.Binds)
+            }
+            if (hostConfig?.Mounts) {
+              hostConfig.Mounts.forEach((mount: any) => {
+                if (mount.Type === 'volume') {
+                  volumes.push(`${mount.Name}:${mount.Destination}`)
+                }
+              })
+            }
+
+            // Extract environment variables
+            const envVars = config.Config?.Env || []
+
+            resolve({
+              port,
+              volumes,
+              envVars,
+              name: config.Name?.replace('/', '') || 'projectshelf'
+            })
+          } catch (parseError) {
+            resolve({
+              port: '8081',
+              volumes: ['data:/app/data'],
+              envVars: [],
+              name: 'projectshelf'
+            })
+          }
+        } else {
+          // Default configuration if inspection fails
+          resolve({
+            port: '8081',
+            volumes: ['data:/app/data'],
+            envVars: [],
+            name: 'projectshelf'
+          })
+        }
+      })
+    })
+  }
+
+  /**
+   * Execute Docker update with current configuration preservation
+   */
+  static async executeDockerUpdate(config?: ContainerConfig): Promise<UpdateResult> {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { spawn } = require('child_process')
+
+    // Get current configuration if not provided
+    const containerConfig = config || await this.getCurrentContainerConfig()
+
+    // Build volume string
+    const volumeArgs = containerConfig.volumes.map(vol => `-v ${vol}`).join(' ')
+
+    // Build environment variable string (filter out system vars)
+    const envArgs = containerConfig.envVars
+      .filter(env => !env.startsWith('PATH=') && !env.startsWith('HOME=') && !env.startsWith('HOSTNAME='))
+      .map(env => `-e "${env}"`)
+      .join(' ')
+
     return new Promise((resolve) => {
       const updateScript = `
         echo "Pulling latest ProjectShelf image..."
         docker pull robertls/projectshelf:latest
         echo "Stopping current container..."
-        docker stop projectshelf || true
-        docker rm projectshelf || true
-        echo "Starting updated container..."
-        docker run -d --name projectshelf --restart unless-stopped -p 8081:8080 -v data:/app/data robertls/projectshelf:latest
+        docker stop ${containerConfig.name} || true
+        docker rm ${containerConfig.name} || true
+        echo "Starting updated container with preserved configuration..."
+        docker run -d --name ${containerConfig.name} --restart unless-stopped -p ${containerConfig.port}:8080 ${volumeArgs} ${envArgs} robertls/projectshelf:latest
         echo "Update completed!"
       `
-      
+
       const childProcess = spawn('sh', ['-c', updateScript], {
         stdio: 'pipe'
       })
-      
+
       let output = ''
       let error = ''
-      
+
       childProcess.stdout.on('data', (data: Buffer) => {
         output += data.toString()
       })
-      
+
       childProcess.stderr.on('data', (data: Buffer) => {
         error += data.toString()
       })
-      
+
       childProcess.on('close', (code: number) => {
         if (code === 0) {
           resolve({
@@ -176,7 +262,7 @@ export class VersionService {
           })
         }
       })
-      
+
       // If process takes too long, return success anyway (container might be restarting)
       setTimeout(() => {
         resolve({
@@ -191,15 +277,10 @@ export class VersionService {
   /**
    * Execute Git update
    */
-  static async executeGitUpdate(): Promise<{
-    success: boolean
-    message: string
-    output?: string
-    error?: string
-  }> {
+  static async executeGitUpdate(): Promise<UpdateResult> {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { spawn } = require('child_process')
-    
+
     return new Promise((resolve) => {
       const updateScript = `
         echo "Pulling latest changes from git..."
@@ -212,23 +293,23 @@ export class VersionService {
         pm2 restart projectshelf || npm run start &
         echo "Git update completed!"
       `
-      
+
       const childProcess = spawn('sh', ['-c', updateScript], {
         cwd: process.cwd(),
         stdio: 'pipe'
       })
-      
+
       let output = ''
       let error = ''
-      
+
       childProcess.stdout.on('data', (data: Buffer) => {
         output += data.toString()
       })
-      
+
       childProcess.stderr.on('data', (data: Buffer) => {
         error += data.toString()
       })
-      
+
       childProcess.on('close', (code: number) => {
         if (code === 0) {
           resolve({
@@ -245,7 +326,7 @@ export class VersionService {
           })
         }
       })
-      
+
       // Timeout for git updates too
       setTimeout(() => {
         resolve({
@@ -258,16 +339,151 @@ export class VersionService {
   }
 
   /**
+   * Execute Docker Compose update
+   */
+  static async executeComposeUpdate(): Promise<UpdateResult> {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { spawn } = require('child_process')
+
+    return new Promise((resolve) => {
+      const updateScript = `
+        echo "Pulling latest changes from git..."
+        git pull origin main || git pull origin master
+        echo "Pulling latest Docker images..."
+        docker compose pull
+        echo "Rebuilding and restarting services..."
+        docker compose up -d --build
+        echo "Docker Compose update completed!"
+      `
+
+      const childProcess = spawn('sh', ['-c', updateScript], {
+        cwd: process.cwd(),
+        stdio: 'pipe'
+      })
+
+      let output = ''
+      let error = ''
+
+      childProcess.stdout.on('data', (data: Buffer) => {
+        output += data.toString()
+      })
+
+      childProcess.stderr.on('data', (data: Buffer) => {
+        error += data.toString()
+      })
+
+      childProcess.on('close', (code: number) => {
+        if (code === 0) {
+          resolve({
+            success: true,
+            message: 'Docker Compose update completed successfully',
+            output: output
+          })
+        } else {
+          resolve({
+            success: false,
+            message: 'Docker Compose update failed',
+            output: output,
+            error: error
+          })
+        }
+      })
+
+      // Timeout for compose updates
+      setTimeout(() => {
+        resolve({
+          success: true,
+          message: 'Update initiated - services restarting',
+          output: 'The update process is running in the background'
+        })
+      }, 45000) // 45 seconds timeout for compose
+    })
+  }
+
+  /**
+   * Detect deployment method
+   */
+  static async detectDeploymentMethod(): Promise<'compose' | 'docker' | 'git'> {
+    // Check for Docker Compose environment variables
+    if (process.env.COMPOSE_PROJECT_NAME ||
+      process.env.COMPOSE_SERVICE ||
+      process.env.COMPOSE_FILE) {
+      return 'compose'
+    }
+
+    // Check if running in Docker container
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require('fs')
+
+      // Check for .dockerenv file (indicates running in Docker)
+      if (fs.existsSync('/.dockerenv')) {
+        return 'docker'
+      }
+
+      // Check for docker-compose.yml in working directory
+      if (fs.existsSync('docker-compose.yml') ||
+        fs.existsSync('docker-compose.yaml') ||
+        fs.existsSync('compose.yml') ||
+        fs.existsSync('compose.yaml')) {
+        return 'compose'
+      }
+    } catch {
+      // File system checks failed, continue with other detection
+    }
+
+    // Check if git repository exists
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require('fs')
+      if (fs.existsSync('.git')) {
+        return 'git'
+      }
+    } catch {
+      // Git check failed
+    }
+
+    // Default to docker if running in production-like environment
+    if (process.env.NODE_ENV === 'production') {
+      return 'docker'
+    }
+
+    // Default to git for development
+    return 'git'
+  }
+
+  /**
+   * Get deployment configuration information
+   */
+  static async getDeploymentInfo(): Promise<DeploymentInfo> {
+    const method = await this.detectDeploymentMethod()
+    if (method === 'docker') {
+      const config = await this.getCurrentContainerConfig()
+      return { method, config }
+    }
+
+    return { method }
+  }
+
+  /**
    * Determine update method and execute update
    */
-  static async executeUpdate(method?: 'docker' | 'git') {
-    // Check if we're running in Docker
-    const isDocker = process.env.DOCKER_ENV === 'true' || process.env.NODE_ENV === 'production'
-    
-    if (method === 'docker' || isDocker) {
-      return await this.executeDockerUpdate()
-    } else {
-      return await this.executeGitUpdate()
+  static async executeUpdate(method?: 'docker' | 'git' | 'compose', config?: any) {
+    const deploymentMethod = method || await this.detectDeploymentMethod()
+
+    switch (deploymentMethod) {
+      case 'compose':
+        return await this.executeComposeUpdate()
+      case 'docker':
+        return await this.executeDockerUpdate(config)
+      case 'git':
+        return await this.executeGitUpdate()
+      default:
+        return {
+          success: false,
+          message: 'Unknown deployment method',
+          error: 'Could not determine how to update the application'
+        }
     }
   }
 }

@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { method } = await request.json()
-    
-    const result = await VersionService.executeUpdate(method)
-    
+    const { method, config } = await request.json()
+
+    const result = await VersionService.executeUpdate(method, config)
+
     if (result.success) {
       return NextResponse.json(result)
     } else {

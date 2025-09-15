@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Download, X, RefreshCw } from 'lucide-react'
-import { formatReleaseDate } from '@/lib/version'
+import { VersionClient } from '@/lib/client/version'
 import { useUpdate } from '@/contexts/UpdateContext'
 
 interface UpdateNotificationProps {
@@ -16,7 +16,7 @@ interface UpdateNotificationProps {
 export default function UpdateNotification({ className }: UpdateNotificationProps) {
   const [dismissed, setDismissed] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
-  const { updateInfo, loading, updating, updateProgress, refreshUpdates, startUpdate } = useUpdate()
+  const { updateInfo, loading, updating, updateProgress, refreshUpdates, showUpdateConfirmation } = useUpdate()
 
   // Don't show anything if dismissed
   if (dismissed) {
@@ -91,7 +91,7 @@ export default function UpdateNotification({ className }: UpdateNotificationProp
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
             {hasUpdate && releaseInfo ? (
-              <span>Released {formatReleaseDate(releaseInfo.publishedAt)}</span>
+              <span>Released {VersionClient.formatReleaseDate(releaseInfo.publishedAt)}</span>
             ) : (
               <span>Last checked: {lastChecked}</span>
             )}
@@ -112,7 +112,7 @@ export default function UpdateNotification({ className }: UpdateNotificationProp
                         <Badge variant="secondary">v{latestVersion}</Badge>
                       </DialogTitle>
                       <DialogDescription>
-                        Released on {formatReleaseDate(releaseInfo.publishedAt)}
+                        Released on {VersionClient.formatReleaseDate(releaseInfo.publishedAt)}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="mt-4">
@@ -149,7 +149,7 @@ export default function UpdateNotification({ className }: UpdateNotificationProp
                 </Dialog>
                 <Button
                   size="sm"
-                  onClick={startUpdate}
+                  onClick={showUpdateConfirmation}
                   disabled={updating}
                   className="flex items-center space-x-1"
                 >
