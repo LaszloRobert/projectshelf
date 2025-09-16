@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/middleware'
+import { requireAuth } from '@/lib/auth'
 import { updateProjectSchema } from '@/lib/validations'
+import { ProjectService } from '@/lib/services/project-service'
 
 export async function GET(
   request: NextRequest,
@@ -11,12 +11,7 @@ export async function GET(
   try {
     const user = await requireAuth()
     
-    const project = await prisma.project.findFirst({
-      where: {
-        id,
-        userId: user.userId,
-      },
-    })
+    const project = await ProjectService.getProjectById(id, user.userId)
     
     if (!project) {
       return NextResponse.json(
@@ -55,29 +50,11 @@ export async function PUT(
     // Validate input
     const validatedData = updateProjectSchema.parse({ ...body, id })
     
-    // Check if project exists and belongs to user
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        id,
-        userId: user.userId,
-      },
-    })
-    
-    if (!existingProject) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      )
-    }
-    
     // Update project (excluding id from update data)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: validatedId, ...updateData } = validatedData
     
-    const project = await prisma.project.update({
-      where: { id },
-      data: updateData,
-    })
+    const project = await ProjectService.updateProject(id, user.userId, updateData)
     
     return NextResponse.json({ project })
   } catch (error) {
@@ -112,24 +89,7 @@ export async function DELETE(
   try {
     const user = await requireAuth()
     
-    // Check if project exists and belongs to user
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        id,
-        userId: user.userId,
-      },
-    })
-    
-    if (!existingProject) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      )
-    }
-    
-    await prisma.project.delete({
-      where: { id },
-    })
+    await ProjectService.deleteProject(id, user.userId)
     
     return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (error) {

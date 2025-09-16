@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,6 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { CreateProjectData } from '@/types'
+import { useProjectForm } from '@/hooks/useProjectForm'
 
 interface CreateProjectModalProps {
   open: boolean
@@ -22,23 +22,6 @@ interface CreateProjectModalProps {
   projectId?: string
 }
 
-// Initial form state - single source of truth
-const initialFormData: CreateProjectData = {
-  name: '',
-  description: '',
-  status: 'PLANNING',
-  gitUrl: '',
-  liveUrl: '',
-  domainProvider: '',
-  hostingProvider: '',
-  techStack: '',
-  version: '',
-  notes: '',
-  lessonLearned: '',
-  tags: '',
-  platform: ''
-}
-
 export default function CreateProjectModal({ 
   open, 
   onOpenChange, 
@@ -46,56 +29,19 @@ export default function CreateProjectModal({
   initialData,
   projectId
 }: CreateProjectModalProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [formData, setFormData] = useState<CreateProjectData>(initialData || initialFormData)
-  const isEditMode = !!projectId
+  const {
+    formData,
+    loading,
+    error,
+    isEditMode,
+    handleChange,
+    handleSubmit,
+    resetForm
+  } = useProjectForm(initialData, projectId, () => {
+    onOpenChange(false)
+    onProjectCreated()
+  })
 
-  // Reset function - single place to reset form
-  const resetForm = useCallback(() => {
-    setFormData(initialData || initialFormData)
-    setError('')
-  }, [initialData])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    try {
-      const url = isEditMode ? `/api/projects/${projectId}` : '/api/projects'
-      const method = isEditMode ? 'PUT' : 'POST'
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to ${isEditMode ? 'update' : 'create'} project`)
-      }
-
-      // Reset form and close modal
-      resetForm()
-      onOpenChange(false)
-      onProjectCreated()
-    } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} project:`, error)
-      setError(`Failed to ${isEditMode ? 'update' : 'create'} project. Please try again.`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {

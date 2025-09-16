@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authenticateUser, createAdminUser } from '@/lib/auth'
+import { AuthService } from '@/lib/services/auth-service'
 import { loginSchema } from '@/lib/validations'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
     const validatedData = loginSchema.parse(body)
     
     // Ensure admin user exists
-    await createAdminUser()
+    await AuthService.createAdminUser()
     
     // Authenticate user
-    const user = await authenticateUser(validatedData.email, validatedData.password)
+    const user = await AuthService.authenticateUser(validatedData.email, validatedData.password)
     
     if (!user) {
       return NextResponse.json(
