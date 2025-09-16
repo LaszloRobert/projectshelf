@@ -25,6 +25,7 @@ RUN mkdir -p /app/data
 
 # Make port configurable via environment variable
 ENV PORT=8080
+ENV DATABASE_URL="file:/app/data/projectshelf.db"
 EXPOSE $PORT
 
 # Start the application
