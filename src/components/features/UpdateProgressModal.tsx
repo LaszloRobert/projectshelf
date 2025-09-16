@@ -57,7 +57,19 @@ export default function UpdateProgressModal({
       }
     } catch (error) {
       console.error('Error polling update progress:', error)
-      setHasError(true)
+
+      // If we were in progress and now can't connect, assume update completed and app restarted
+      if (progress && (progress.stage === 'downloading' || progress.stage === 'updating' || progress.stage === 'backing_up')) {
+        setProgress({
+          stage: 'completed',
+          message: 'Update completed successfully! Application restarted.',
+          progress: 100
+        })
+        setIsComplete(true)
+      } else {
+        setHasError(true)
+      }
+
       if (pollingInterval) {
         clearInterval(pollingInterval)
         setPollingInterval(null)

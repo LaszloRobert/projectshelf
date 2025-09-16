@@ -99,15 +99,15 @@ export class InPlaceUpdateService {
       await this.cleanup()
 
       this.emitProgress({
-        stage: 'completed',
-        message: 'Update completed successfully! Application will restart now.',
+        stage: 'restarting',
+        message: 'Update completed! Restarting application...',
         progress: 100
       })
 
-      // Step 7: Brief delay then restart
+      // Step 7: Immediate restart
       setTimeout(() => {
         process.exit(0) // Docker will automatically restart the container
-      }, 3000) // Just 3 seconds to show completion
+      }, 500) // Just 0.5 seconds
 
       return {
         success: true,
