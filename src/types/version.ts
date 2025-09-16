@@ -42,4 +42,6 @@ export interface UpdateResult {
   message: string
   output?: string
   error?: string
+  targetVersion?: string
+  backupPath?: string
 }

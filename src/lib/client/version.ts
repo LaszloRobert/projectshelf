@@ -55,9 +55,75 @@ export class VersionClient {
   }
 
   /**
-   * Execute update with optional configuration
+   * Execute in-place update (new simplified method)
+   */
+  static async executeInPlaceUpdate(): Promise<UpdateResult> {
+    try {
+      const response = await fetch('/api/admin/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: result.error || 'Update failed',
+          error: result.details || result.error
+        }
+      }
+
+      return {
+        success: true,
+        message: result.message,
+        targetVersion: result.targetVersion
+      }
+    } catch (error) {
+      console.error('Update execution failed:', error)
+      return {
+        success: false,
+        message: 'Update failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  /**
+   * Get real-time update progress
+   */
+  static async getUpdateProgress(): Promise<{
+    updateInProgress: boolean
+    progress?: any
+  }> {
+    try {
+      const response = await fetch('/api/admin/update')
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error getting update progress:', error)
+      return {
+        updateInProgress: false
+      }
+    }
+  }
+
+  /**
+   * Execute update with optional configuration (legacy method)
    */
   static async executeUpdate(method?: string, config?: any): Promise<UpdateResult> {
+    // For new in-place updates, use the simplified method
+    if (!method || method === 'in-place') {
+      return this.executeInPlaceUpdate()
+    }
+
+    // Legacy method for backward compatibility
     try {
       const response = await fetch('/api/admin/version', {
         method: 'POST',

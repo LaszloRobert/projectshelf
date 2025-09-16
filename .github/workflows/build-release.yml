@@ -1,0 +1,92 @@
+name: Build Release Assets
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build application
+        run: npm run build
+
+      - name: Create release package
+        run: |
+          mkdir -p release-package
+
+          # Copy built application files
+          cp -r .next release-package/
+          cp -r prisma release-package/
+          cp package*.json release-package/
+
+          # Copy essential files
+          cp -r public release-package/ || true
+
+          # Create startup script
+          cat > release-package/start.sh << 'EOF'
+          #!/bin/bash
+          # ProjectShelf startup script
+          npx prisma db push
+          npm start
+          EOF
+          chmod +x release-package/start.sh
+
+          # Package everything
+          cd release-package
+          tar -czf ../projectshelf-built.tar.gz .
+          cd ..
+
+      - name: Get release info
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            echo "upload_url=manual" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "upload_url=${{ github.event.release.upload_url }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload release asset
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./projectshelf-built.tar.gz
+          asset_name: projectshelf-built-${{ steps.release.outputs.tag }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload artifact (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: projectshelf-built-${{ steps.release.outputs.tag }}
+          path: ./projectshelf-built.tar.gz
+          retention-days: 30

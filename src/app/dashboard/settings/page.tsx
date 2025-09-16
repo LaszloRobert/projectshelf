@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { User as UserIcon, Users, Shield, Plus, UserPlus, Trash2 } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
-import UpdateNotification from '@/components/features/UpdateNotification'
+import SimpleUpdateNotification from '@/components/features/SimpleUpdateNotification'
 import { User, UserWithProjectCount, CreateUserData, UpdateProfileFormData } from '@/types/user'
 import { useUpdate } from '@/contexts/UpdateContext'
 import { getCurrentUser, updateProfile } from '@/lib/auth/client'
@@ -457,7 +457,7 @@ export default function SettingsPage() {
                 <p className="text-muted-foreground">Check for updates and manage system version</p>
               </div>
               
-              <UpdateNotification />
+              <SimpleUpdateNotification />
             </div>
           )}
         </div>
