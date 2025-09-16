@@ -100,14 +100,14 @@ export class InPlaceUpdateService {
 
       this.emitProgress({
         stage: 'completed',
-        message: 'Update completed successfully!',
+        message: 'Update completed successfully! Application will restart now.',
         progress: 100
       })
 
-      // Step 7: Graceful restart
+      // Step 7: Brief delay then restart
       setTimeout(() => {
         process.exit(0) // Docker will automatically restart the container
-      }, 2000)
+      }, 3000) // Just 3 seconds to show completion
 
       return {
         success: true,
@@ -152,7 +152,12 @@ export class InPlaceUpdateService {
         progress: 10
       })
 
-      const response = await fetch(downloadUrl)
+      const response = await fetch(downloadUrl, {
+        headers: {
+          'User-Agent': 'ProjectShelf-Updater/1.0'
+        },
+        signal: AbortSignal.timeout(300000) // 5 minute timeout
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to download update: ${response.status} ${response.statusText}`)

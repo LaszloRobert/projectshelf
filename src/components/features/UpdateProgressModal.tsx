@@ -129,7 +129,7 @@ export default function UpdateProgressModal({
       case 'restarting':
         return 'Restarting application...'
       case 'completed':
-        return 'Update completed successfully! The application will restart momentarily.'
+        return 'Update completed successfully! The application will restart momentarily. Please refresh your browser after 30 seconds.'
       case 'error':
         return 'Update failed. The application has been restored to the previous version.'
       default:
@@ -174,15 +174,15 @@ export default function UpdateProgressModal({
                 Successfully Updated to {targetVersion}!
               </h3>
               <p className="text-muted-foreground">
-                ProjectShelf has been updated and will restart automatically.
-                You may need to refresh your browser after the restart completes.
+                ProjectShelf has been updated successfully and is restarting.
+                Please wait 30 seconds and refresh your browser to see the updated application.
               </p>
             </div>
 
             <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg mb-4">
               <p className="text-sm text-green-700 dark:text-green-300">
-                💡 <strong>Tip:</strong> If the page doesn&apos;t refresh automatically,
-                please wait 30 seconds and refresh manually.
+                💡 <strong>Important:</strong> The application is restarting now. You&apos;ll need to manually refresh
+                your browser in about 30 seconds to access the updated version.
               </p>
             </div>
           </div>
@@ -275,8 +275,8 @@ export default function UpdateProgressModal({
           {!hasError && !isComplete && (
             <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg">
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                <strong>⚠️ Important:</strong> Do not close this dialog or refresh the page during the update process.
-                The update will complete automatically.
+                <strong>⚠️ Important:</strong> Do not close this dialog during the update process.
+                When the update completes, the application will restart and you&apos;ll need to refresh your browser.
               </p>
             </div>
           )}
