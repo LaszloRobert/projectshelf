@@ -175,17 +175,17 @@ export default function SettingsPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Settings</h1>
           <p className="text-muted-foreground mt-2">Manage your profile and system settings</p>
         </div>
 
         <div className="space-y-6">
           {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-fit">
+          <div className="flex flex-col sm:flex-row sm:space-x-1 bg-muted p-1 rounded-lg max-w-full sm:max-w-fit overflow-x-auto">
             <button
               onClick={() => setActiveTab('profile')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+              className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
                 activeTab === 'profile'
                   ? 'bg-card shadow-sm text-foreground'
                   : 'text-muted-foreground hover:text-foreground'
@@ -198,7 +198,7 @@ export default function SettingsPage() {
               <>
                 <button
                   onClick={() => setActiveTab('users')}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
                     activeTab === 'users'
                       ? 'bg-card shadow-sm text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                     }
                     setActiveTab('version')
                   }}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors relative ${
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-md transition-colors relative whitespace-nowrap ${
                     activeTab === 'version'
                       ? 'bg-card shadow-sm text-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -240,7 +240,7 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-md">
+                <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-full sm:max-w-md">
                   <div className="space-y-2">
                     <Label htmlFor="current-password">Current Password</Label>
                     <Input
@@ -296,15 +296,15 @@ export default function SettingsPage() {
           {/* Users Tab (Admin Only) */}
           {currentUser?.isAdmin && activeTab === 'users' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-foreground">User Management</h2>
                     <p className="text-muted-foreground">Manage users and their permissions</p>
                   </div>
-                  
+
                   <Dialog open={createUserModalOpen} onOpenChange={setCreateUserModalOpen}>
                     <DialogTrigger asChild>
-                      <Button className="flex items-center space-x-2">
+                      <Button className="flex items-center space-x-2 w-full sm:w-auto">
                         <Plus className="h-4 w-4" />
                         <span>Create User</span>
                       </Button>
@@ -383,12 +383,12 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Users Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {users.map((user) => (
                     <Card key={user.id} className="hover:shadow-md transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex items-center space-x-3 min-w-0 flex-1">
                             <div className="flex-shrink-0">
                               {user.isAdmin ? (
                                 <Shield className="h-8 w-8 text-blue-600" />
@@ -397,13 +397,13 @@ export default function SettingsPage() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <CardTitle className="text-lg truncate">
+                              <CardTitle className="text-lg leading-tight break-words">
                                 {user.name || 'Unnamed User'}
                               </CardTitle>
-                              <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                              <p className="text-sm text-gray-600 break-words">{user.email}</p>
                             </div>
                           </div>
-                          <Badge variant={user.isAdmin ? "default" : "secondary"}>
+                          <Badge variant={user.isAdmin ? "default" : "secondary"} className="shrink-0 self-start">
                             {user.isAdmin ? 'Admin' : 'User'}
                           </Badge>
                         </div>
@@ -424,11 +424,13 @@ export default function SettingsPage() {
                               size="sm"
                               onClick={() => setDeleteUserId(user.id)}
                               disabled={!canDeleteUser(user)}
-                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              {user.id === currentUser?.id ? 'Cannot delete yourself' : 
-                               user.isAdmin && users.filter(u => u.isAdmin).length <= 1 ? 'Last admin' : 'Delete'}
+                              <Trash2 className="h-4 w-4 mr-2 shrink-0" />
+                              <span className="truncate">
+                                {user.id === currentUser?.id ? 'Cannot delete yourself' :
+                                 user.isAdmin && users.filter(u => u.isAdmin).length <= 1 ? 'Last admin' : 'Delete'}
+                              </span>
                             </Button>
                           </div>
                         </div>

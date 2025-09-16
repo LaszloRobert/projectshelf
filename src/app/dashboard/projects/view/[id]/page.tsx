@@ -133,47 +133,49 @@ export default function ProjectViewPage() {
         </div>
 
         {/* Header */}
-        <div className="bg-card text-card-foreground rounded-lg border border-border p-6 mb-6 shadow-sm">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <h1 className="text-3xl font-bold text-foreground">{project.name}</h1>
-                <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+        <div className="bg-card text-card-foreground rounded-lg border border-border p-4 sm:p-6 mb-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 mb-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground break-words">{project.name}</h1>
+                <Badge className={`${statusColors[project.status as keyof typeof statusColors]} shrink-0`}>
                   {formatStatus(project.status)}
                 </Badge>
               </div>
               {project.description && (
-                <p className="text-muted-foreground text-lg leading-relaxed">
+                <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
                   {project.description}
                 </p>
               )}
             </div>
-            
-            <div className="flex items-center gap-2 ml-6">
+
+            <div className="flex items-center gap-2 sm:ml-6 shrink-0">
               <Button
                 variant="outline"
                 onClick={handleEdit}
                 className="flex items-center gap-2"
+                size="sm"
               >
                 <Edit className="h-4 w-4" />
-                Edit
+                <span className="hidden sm:inline">Edit</span>
               </Button>
               <Button
                 variant="outline"
                 onClick={handleDelete}
                 className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                size="sm"
               >
                 <Trash2 className="h-4 w-4" />
-                Delete
+                <span className="hidden sm:inline">Delete</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Project Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Quick Links */}
-          <div className="bg-card text-card-foreground rounded-lg border border-border p-6 shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border border-border p-4 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <ExternalLink className="h-5 w-5 text-blue-600" />
               <h2 className="text-lg font-semibold text-foreground">Quick Links</h2>
@@ -228,7 +230,7 @@ export default function ProjectViewPage() {
           </div>
 
           {/* Project Details */}
-          <div className="bg-card text-card-foreground rounded-lg border border-border p-6 shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border border-border p-4 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <Code className="h-5 w-5 text-green-600" />
               <h2 className="text-lg font-semibold text-foreground">Project Details</h2>
@@ -236,16 +238,16 @@ export default function ProjectViewPage() {
             <div className="space-y-4">
               {project.techStack && (
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg mt-1">
+                  <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg mt-1 shrink-0">
                     <Code className="h-4 w-4 text-green-600" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground mb-2 text-sm">Tech Stack</p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                       {project.techStack.split(',').map((tech, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                          className="px-2 sm:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium break-words"
                         >
                           {tech.trim()}
                         </span>
@@ -310,25 +312,25 @@ export default function ProjectViewPage() {
 
           {/* Notes & Lessons */}
           {(project.notes || project.lessonLearned) && (
-            <div className="bg-card text-card-foreground rounded-lg border border-border p-6 shadow-sm lg:col-span-2">
+            <div className="bg-card text-card-foreground rounded-lg border border-border p-4 sm:p-6 shadow-sm lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <Tag className="h-5 w-5 text-indigo-600" />
                 <h2 className="text-lg font-semibold text-foreground">Notes & Lessons</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {project.notes && (
                   <div>
                     <h3 className="font-medium text-foreground mb-2 text-sm">Notes</h3>
-                    <div className="bg-muted rounded-lg p-4">
-                      <p className="text-muted-foreground whitespace-pre-wrap text-sm">{project.notes}</p>
+                    <div className="bg-muted rounded-lg p-3 sm:p-4">
+                      <p className="text-muted-foreground whitespace-pre-wrap text-sm break-words">{project.notes}</p>
                     </div>
                   </div>
                 )}
                 {project.lessonLearned && (
                   <div>
                     <h3 className="font-medium text-foreground mb-2 text-sm">Lessons Learned</h3>
-                    <div className="bg-yellow-50 rounded-lg p-4">
-                      <p className="text-muted-foreground whitespace-pre-wrap text-sm">{project.lessonLearned}</p>
+                    <div className="bg-yellow-50 rounded-lg p-3 sm:p-4">
+                      <p className="text-muted-foreground whitespace-pre-wrap text-sm break-words">{project.lessonLearned}</p>
                     </div>
                   </div>
                 )}
@@ -338,8 +340,8 @@ export default function ProjectViewPage() {
 
           {/* Tags & Platform */}
           {(project.tags || project.platform) && (
-            <div className="bg-card text-card-foreground rounded-lg border border-border p-6 shadow-sm lg:col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-card text-card-foreground rounded-lg border border-border p-4 sm:p-6 shadow-sm lg:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Tags */}
                 {project.tags && (
                   <div>
@@ -347,11 +349,11 @@ export default function ProjectViewPage() {
                       <Tag className="h-5 w-5 text-pink-600" />
                       <h3 className="text-lg font-semibold text-foreground">Tags</h3>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                       {project.tags.split(',').map((tag, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-xs font-medium"
+                          className="px-2 sm:px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-xs font-medium break-words"
                         >
                           {tag.trim()}
                         </span>
@@ -359,7 +361,7 @@ export default function ProjectViewPage() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Platform */}
                 {project.platform && (
                   <div>
@@ -367,11 +369,11 @@ export default function ProjectViewPage() {
                       <Globe className="h-5 w-5 text-blue-600" />
                       <h3 className="text-lg font-semibold text-foreground">Platform</h3>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                       {project.platform.split(',').map((platform, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                          className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium break-words"
                         >
                           {platform.trim()}
                         </span>

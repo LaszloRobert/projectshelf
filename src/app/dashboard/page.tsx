@@ -62,20 +62,20 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search projects..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-md border border-input bg-card text-foreground dark:bg-card dark:[color-scheme:dark]"
+            className="px-3 py-2 h-10 rounded-md border border-input bg-card text-foreground dark:bg-card dark:[color-scheme:dark] min-w-0 sm:min-w-[140px]"
           >
             <option value="all">All Status</option>
             <option value="PLANNING">Planning</option>
@@ -87,24 +87,24 @@ export default function DashboardPage() {
         {/* Projects Grid */}
         {projects.length === 0 ? (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-            <p className="text-gray-500 mb-4">Get started by creating your first project.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-foreground mb-2">No projects found</h3>
+            <p className="text-gray-500 dark:text-muted-foreground mb-4">Get started by creating your first project.</p>
             <Button onClick={() => navbarRef.current?.openCreateModal()}>
               <Plus className="h-4 w-4 mr-2" />
               Create Project
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {projects.map((project) => (
               <Card key={project.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-3">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg truncate">{project.name}</CardTitle>
+                      <CardTitle className="text-lg leading-tight break-words">{project.name}</CardTitle>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${statusColors[project.status as keyof typeof statusColors]}`}>
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2">
+                      <Badge className={`${statusColors[project.status as keyof typeof statusColors]} shrink-0`}>
                         {formatStatus(project.status)}
                       </Badge>
                       <div className="flex items-center gap-2">
@@ -179,8 +179,8 @@ export default function DashboardPage() {
                     )}
 
                     {/* Version, Update Date, and Platform */}
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
                         {project.version && (
                           <div className="text-xs text-gray-500">
                             v{project.version}
