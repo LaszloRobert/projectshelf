@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/middleware'
+import { requireAdmin } from '@/lib/auth'
+import { AuthService } from '@/lib/services/auth-service'
 import { createUserSchema } from '@/lib/validations'
-import { hashPassword } from '@/lib/auth'
-import { prisma } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,36 +13,12 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = createUserSchema.parse(body)
     
-    // Check if email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    })
-    
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'Email is already in use' },
-        { status: 400 }
-      )
-    }
-    
-    // Hash password
-    const hashedPassword = await hashPassword(validatedData.password)
-    
-    // Create user
-    const newUser = await prisma.user.create({
-      data: {
-        email: validatedData.email,
-        password: hashedPassword,
-        name: validatedData.name || null,
-        isAdmin: validatedData.isAdmin || false,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        isAdmin: true,
-        createdAt: true,
-      }
+    // Create user using service
+    const newUser = await AuthService.createUser({
+      email: validatedData.email,
+      password: validatedData.password,
+      name: validatedData.name,
+      isAdmin: validatedData.isAdmin || false
     })
     
     return NextResponse.json({
@@ -89,24 +64,8 @@ export async function GET() {
     // Require admin authentication
     await requireAdmin()
     
-    // Get all users
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        isAdmin: true,
-        createdAt: true,
-        _count: {
-          select: {
-            projects: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    // Get all users using service
+    const users = await AuthService.getAllUsers()
     
     return NextResponse.json({ users })
     

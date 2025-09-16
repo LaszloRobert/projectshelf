@@ -10,7 +10,11 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { User as UserIcon, Users, Shield, Plus, UserPlus, Trash2 } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
+import UpdateNotification from '@/components/features/UpdateNotification'
 import { User, UserWithProjectCount, CreateUserData, UpdateProfileFormData } from '@/types/user'
+import { useUpdate } from '@/contexts/UpdateContext'
+import { getCurrentUser, updateProfile } from '@/lib/auth/client'
+import { getUsers, createUser, deleteUser } from '@/lib/client/admin'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
@@ -19,6 +23,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false)
   const router = useRouter()
+  const { showVersionTabDot, dismissVersionTabDot } = useUpdate()
 
   // Profile form state
   const [profileData, setProfileData] = useState<UpdateProfileFormData>({
@@ -57,16 +62,14 @@ export default function SettingsPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch('/api/auth/me')
-      if (response.ok) {
-        const data = await response.json()
-        setCurrentUser(data.user)
-        setProfileData(prev => ({ ...prev, email: data.user.email }))
-      } else if (response.status === 401) {
-        router.push('/login')
-      }
+      const data = await getCurrentUser()
+      setCurrentUser(data.user)
+      setProfileData(prev => ({ ...prev, email: data.user.email }))
     } catch (error) {
       console.error('Error fetching current user:', error)
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login')
+      }
     } finally {
       setLoading(false)
     }
@@ -74,11 +77,8 @@ export default function SettingsPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users')
-      if (response.ok) {
-        const data = await response.json()
-        setUsers(data.users)
-      }
+      const data = await getUsers()
+      setUsers(data.users)
     } catch (error) {
       console.error('Error fetching users:', error)
     }
@@ -91,23 +91,11 @@ export default function SettingsPage() {
     setProfileSuccess('')
 
     try {
-      const response = await fetch('/api/auth/update-profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update profile')
-      }
+      await updateProfile(profileData)
 
       setProfileSuccess('Profile updated successfully')
       setProfileData(prev => ({ ...prev, currentPassword: '', newPassword: '' }))
-      
+
       // Update current user if email changed
       if (profileData.email && profileData.email !== currentUser?.email) {
         setCurrentUser(prev => prev ? { ...prev, email: profileData.email! } : prev)
@@ -125,24 +113,12 @@ export default function SettingsPage() {
     setCreateUserError('')
 
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(createUserData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create user')
-      }
+      await createUser(createUserData)
 
       // Reset form and close modal
       setCreateUserData({ email: '', password: '', name: '', isAdmin: false })
       setCreateUserModalOpen(false)
-      
+
       // Refresh users list
       fetchUsers()
     } catch (err) {
@@ -174,15 +150,7 @@ export default function SettingsPage() {
     setDeleteUserError('')
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE'
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete user')
-      }
+      await deleteUser(userId)
 
       // Close modal and refresh users list
       setDeleteUserId(null)
@@ -214,7 +182,7 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-md">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg max-w-fit">
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
@@ -227,17 +195,38 @@ export default function SettingsPage() {
               <span>Profile</span>
             </button>
             {currentUser?.isAdmin && (
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-                  activeTab === 'users'
-                    ? 'bg-card shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Users className="h-4 w-4" />
-                <span>Users</span>
-              </button>
+              <>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                    activeTab === 'users'
+                      ? 'bg-card shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Users</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (showVersionTabDot) {
+                      dismissVersionTabDot()
+                    }
+                    setActiveTab('version')
+                  }}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors relative ${
+                    activeTab === 'version'
+                      ? 'bg-card shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>Version</span>
+                  {showVersionTabDot && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+                  )}
+                </button>
+              </>
             )}
           </div>
 
@@ -456,6 +445,18 @@ export default function SettingsPage() {
                   </div>
                 )}
               </div>
+          )}
+
+          {/* Version Tab (Admin Only) */}
+          {currentUser?.isAdmin && activeTab === 'version' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Version Information</h2>
+                <p className="text-muted-foreground">Check for updates and manage system version</p>
+              </div>
+              
+              <UpdateNotification />
+            </div>
           )}
         </div>
 

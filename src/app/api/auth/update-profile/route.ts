@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/middleware'
+import { requireAuth } from '@/lib/auth'
+import { AuthService } from '@/lib/services/auth-service'
 import { updateProfileSchema } from '@/lib/validations'
-import { hashPassword, verifyPassword } from '@/lib/auth'
-import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 
@@ -18,65 +17,15 @@ export async function PUT(request: NextRequest) {
     // Validate input
     const validatedData = updateProfileSchema.parse(body)
 
-    // Get current user from database
-    const currentUser = await prisma.user.findUnique({
-      where: { id: authUser.userId }
-    })
-
-    if (!currentUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
-    // Verify current password
-    const isCurrentPasswordValid = await verifyPassword(
-      validatedData.currentPassword,
-      currentUser.password
+    // Update user profile using service
+    const updatedUser = await AuthService.updateUserProfile(
+      authUser.userId,
+      {
+        email: validatedData.email,
+        newPassword: validatedData.newPassword
+      },
+      validatedData.currentPassword
     )
-
-    if (!isCurrentPasswordValid) {
-      return NextResponse.json(
-        { error: 'Current password is incorrect' },
-        { status: 401 }
-      )
-    }
-
-    // Prepare update data
-    const updateData: { email?: string; password?: string } = {}
-
-    if (validatedData.email) {
-      // Check if email is already taken by another user
-      const existingUser = await prisma.user.findUnique({
-        where: { email: validatedData.email }
-      })
-
-      if (existingUser && existingUser.id !== authUser.userId) {
-        return NextResponse.json(
-          { error: 'Email is already in use' },
-          { status: 400 }
-        )
-      }
-
-      updateData.email = validatedData.email
-    }
-
-    if (validatedData.newPassword) {
-      updateData.password = await hashPassword(validatedData.newPassword)
-    }
-
-    // Update user in database
-    const updatedUser = await prisma.user.update({
-      where: { id: authUser.userId },
-      data: updateData,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        isAdmin: true
-      }
-    })
 
     // If email changed, update JWT token
     if (validatedData.email) {

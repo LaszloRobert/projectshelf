@@ -35,3 +35,5 @@ export interface Project {
     tags?: string
     platform?: string
   }
+
+  export type UpdateProjectData = Partial<CreateProjectData>

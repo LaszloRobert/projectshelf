@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/middleware'
-import { prisma } from '@/lib/db'
-import jwt from 'jsonwebtoken'
-import { cookies } from 'next/headers'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this'
+import { requireAdmin } from '@/lib/auth'
+import { AuthService } from '@/lib/services/auth-service'
+import { AdminService } from '@/lib/services/admin-service'
 
 export async function DELETE(
   request: NextRequest,
@@ -16,44 +13,11 @@ export async function DELETE(
     
     const { id: userIdToDelete } = await params
 
-    // Prevent self-deletion
-    if (currentUser.userId === userIdToDelete) {
-      return NextResponse.json(
-        { error: 'Cannot delete your own account' },
-        { status: 400 }
-      )
-    }
+    // Validate user deletion using service
+    await AdminService.validateUserDeletion(currentUser.userId, userIdToDelete)
 
-    // Check if user to delete exists
-    const userToDelete = await prisma.user.findUnique({
-      where: { id: userIdToDelete }
-    })
-
-    if (!userToDelete) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
-    // Failsafe: If user to delete is an admin, ensure at least one admin will remain
-    if (userToDelete.isAdmin) {
-      const adminCount = await prisma.user.count({
-        where: { isAdmin: true }
-      })
-
-      if (adminCount <= 1) {
-        return NextResponse.json(
-          { error: 'Cannot delete the last admin user. At least one admin must exist.' },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Delete the user (projects will cascade delete automatically)
-    await prisma.user.delete({
-      where: { id: userIdToDelete }
-    })
+    // Delete the user using service
+    await AuthService.deleteUser(userIdToDelete)
 
     return NextResponse.json({
       message: 'User deleted successfully'
@@ -74,6 +38,21 @@ export async function DELETE(
         return NextResponse.json(
           { error: 'Admin access required' },
           { status: 403 }
+        )
+      }
+
+      if (error.message === 'User not found') {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 404 }
+        )
+      }
+
+      if (error.message === 'Cannot delete your own account' ||
+          error.message.includes('Cannot delete the last admin user')) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
         )
       }
     }

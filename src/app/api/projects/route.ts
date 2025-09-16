@@ -1,47 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/middleware'
+import { requireAuth } from '@/lib/auth'
 import { createProjectSchema } from '@/lib/validations'
+import { ProjectService } from '@/lib/services/project-service'
 
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
 
     const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search')
-    const status = searchParams.get('status')
+    const search = searchParams.get('search') || undefined
+    const status = searchParams.get('status') || undefined
 
-    type WhereClause = {
-      userId: string
-      status?: 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'
-      OR?: Array<
-        | { name: { contains: string } }
-        | { description: { contains: string } }
-        | { techStack: { contains: string } }
-        | { tags: { contains: string } }
-      >
-    }
-
-    const where: WhereClause = {
-      userId: user.userId,
-    }
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-        { techStack: { contains: search } },
-        { tags: { contains: search } },
-      ]
-    }
-
-    if (status && status !== 'all') {
-      where.status = status as 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'
-    }
-
-    const projects = await prisma.project.findMany({
-      where,
-      orderBy: { updatedAt: 'desc' },
+    const projects = await ProjectService.getUserProjects(user.userId, {
+      search,
+      status
     })
 
     return NextResponse.json({ projects })
@@ -70,12 +42,7 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = createProjectSchema.parse(body)
 
-    const project = await prisma.project.create({
-      data: {
-        ...validatedData,
-        userId: user.userId,
-      },
-    })
+    const project = await ProjectService.createProject(user.userId, validatedData)
 
     return NextResponse.json({ project }, { status: 201 })
   } catch (error) {

@@ -48,4 +48,6 @@ next-env.d.ts
 
 # Local release notes
 RELEASE_NOTES.md
+
+.claude/settings.local.json
 CLAUDE.md

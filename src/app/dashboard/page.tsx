@@ -10,6 +10,7 @@ import { Search, Github, Globe, Eye, Plus, Code } from 'lucide-react'
 import Navbar, { NavbarRef } from '@/components/layout/Navbar'
 import { Project } from '@/types/project'
 import { statusColors, formatStatus } from '@/lib/utils'
+import { getProjects } from '@/lib/client/projects'
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -25,24 +26,14 @@ export default function DashboardPage() {
 
   const fetchProjects = async () => {
     try {
-      const params = new URLSearchParams()
-      if (search) params.append('search', search)
-      if (statusFilter !== 'all') params.append('status', statusFilter)
-
-      const response = await fetch(`/api/projects?${params}`)
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push('/login')
-          return
-        }
-        throw new Error('Failed to fetch projects')
-      }
-
-      const data = await response.json()
+      const data = await getProjects(search, statusFilter !== 'all' ? statusFilter : undefined)
       setProjects(data.projects)
     } catch (error) {
       console.error('Error fetching projects:', error)
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login')
+        return
+      }
     } finally {
       setLoading(false)
     }
