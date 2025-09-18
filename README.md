@@ -2,9 +2,10 @@
 
 A way to keep your project info in one place.
 
-<a href="https://ibb.co/1tC6nTP5"><img src="https://i.ibb.co/TxQLTt7S/demo.png" alt="demo" border="0"></a>
+<p align="center">
+  <a href="https://ibb.co/1tC6nTP5"><img src="https://i.ibb.co/TxQLTt7S/demo.png" alt="demo" border="0"></a>
+</p>
 
-[![GHCR](https://img.shields.io/badge/ghcr-laszlorobert%2Fprojectshelf-0db7ed?logo=docker)](https://github.com/users/LaszloRobert/packages/container/package/projectshelf)
 [![Docker Hub](https://img.shields.io/badge/dockerhub-robertls%2Fprojectshelf-0db7ed?logo=docker)](https://hub.docker.com/r/robertls/projectshelf)
 [![Release](https://img.shields.io/github/v/tag/LaszloRobert/projectshelf?label=release&sort=semver)](https://github.com/LaszloRobert/projectshelf/releases)
 
@@ -21,15 +22,9 @@ A way to keep your project info in one place.
 
 ## 🚀 Quick Start: Self-host
 
-Run with Docker Hub (recommended):
 ```bash
 docker pull robertls/projectshelf:latest
 docker run -d --name projectshelf --restart unless-stopped -p 8081:8080 -v data:/app/data robertls/projectshelf:latest
-```
-Alternative (GHCR):
-```bash
-docker pull ghcr.io/laszlorobert/projectshelf:latest
-docker run -d --name projectshelf --restart unless-stopped -p 8081:8080 -v data:/app/data ghcr.io/laszlorobert/projectshelf:latest
 ```
 
 After running
@@ -146,18 +141,6 @@ On first startup, an admin account is automatically created:
 - Use HTTPS in production with a reverse proxy
 - Regular database backups recommended
 
-## 📁 File Structure
-
-```
-projectshelf/
-├── data/                 # Database and persistent data (created on first run)
-├── src/                  # Application source code
-├── prisma/              # Database schema and migrations
-├── .env                 # Auto-generated configuration (created on first run)
-├── docker-compose.yml   # Docker configuration
-├── Dockerfile          # Container definition
-└── README.md           # This file
-```
 
 ### Can't Access from Other Devices
 - Use your server's IP address instead of localhost
